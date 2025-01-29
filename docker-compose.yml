@@ -1,0 +1,36 @@
+services:
+    database:
+        # for PHP < 7.4
+        image: library/mysql:5.7
+        restart: always
+        ports:
+            - 3306:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_USER: test
+            MYSQL_PASSWORD: technique
+            MYSQL_DATABASE: spip
+        volumes:
+            - ./appdata/db:/var/lib/mysql
+    php:
+        build:
+            context: ./docker/php/spip3
+            target: spip_php_dev
+        restart: unless-stopped
+        ports:
+            - 80:80
+            - 443:443
+        volumes:
+            #change to path of spip source
+            - ../spip/:/var/www/html/
+            - ./docker/php/spip.ini:/usr/local/etc/php/conf.d/spip.ini
+#to remove for production
+    mailer:
+        image: axllent/mailpit
+        hostname: localhost
+        ports:
+            - "1025:1025"
+            - "8025:8025"
+        environment:
+            MP_SMTP_AUTH_ACCEPT_ANY: 1
+            MP_SMTP_AUTH_ALLOW_INSECURE: 1
